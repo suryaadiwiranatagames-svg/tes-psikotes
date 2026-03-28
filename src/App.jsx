@@ -33,17 +33,17 @@ const explainLetters = (text, ans) => {
   }
 };
 
-const buildTF = (texts, answers) => texts.map((t, i) => ({
-  id: `q${i+1}`,
-  text: `${i+1}) ${t}`,
+const buildTF = (texts, answers, startIndex = 1) => texts.map((t, i) => ({
+  id: `q${startIndex + i}`,
+  text: `${startIndex + i}) ${t}`,
   options: [{ id: 'b', text: 'Benar (b)' }, { id: 's', text: 'Salah (s)' }],
   correctAnswer: answers[i],
   explanation: explainLetters(t, answers[i])
 }));
 
-const buildMC = (data) => data.map((d, i) => ({
-  id: `q${i+1}`,
-  text: `${i+1}) ${d[0]}`,
+const buildMC = (data, startIndex = 1) => data.map((d, i) => ({
+  id: `q${startIndex + i}`,
+  text: `${startIndex + i}) ${d[0]}`,
   options: d[1].map((opt, j) => ({ id: ['a','b','c','d','e'][j], text: opt })),
   correctAnswer: d[2],
   explanation: d[3] || "Sesuai dengan hasil perhitungan matematika yang benar."
@@ -217,6 +217,57 @@ const t4_data = [
   ["Seorang telah membeli 2 kg ubi seharga Rp. 43,56 tiap kg. Selain itu ia membeli pula gula pasir seharga Rp. 27,69. Berapakah harga seluruhnya?", ["Rp. 12,57", "Rp. 124,70", "Rp. 125,20", "Rp. 125,70", "t.a."], "e", "2 x 43,56 = 87,12. 87,12 + 27,69 = 114,81. Opsi (t.a)."],
   ["Seorang anak tinggal sejauh 2 km dari sekolah. Ia naik sepeda dengan kecepatan 10 km sejam. Berapakah waktu yang dibutuhkan setiap minggu untuk pulang-pergi ke sekolah? (Hanya 5 hari seminggu ia bersekolah).", ["2 jam", "2 1/2 jam", "3 jam", "4 jam", "t.a."], "a", "Sehari PP = 4 km. Seminggu (5 hari) = 20 km. Waktu = 20 km / 10 km/jam = 2 jam."],
   ["Sebuah perusahaan tambang minyak bertujuan membor sebuah sumur. Perusahaan itu membayar Rp. 250,- setiap meter untuk 25 meter pertama, Rp. 300,- setiap meter untuk 50 meter berikutnya dan Rp. 350,- setiap meter untuk selanjutnya. Apabila seluruh pemboran telah menelan biaya Rp. 36 300,-, berapa dalamnya sumur tersebut?", ["113 meter", "115 meter", "118 meter", "125 meter", "t.a."], "c", "Biaya 25 meter pertama = 25 x 250 = Rp. 6.250,-. Biaya 50 meter berikutnya = 50 x 300 = Rp. 15.000,-. Total 75 meter pertama = Rp. 21.250,-. Sisa biaya = Rp. 36.300,- - Rp. 21.250,- = Rp. 15.050,-. Dengan tarif Rp. 350,- per meter, sisa kedalaman = 15.050 / 350 = 43 meter. Total kedalaman = 75 + 43 = 118 meter. Opsi c."]
+];
+
+const t6a_data = [
+  ["14 + 6 × 3 = ...", ["30", "32", "34", "28", "36"], "b", "Dahulukan perkalian: 6 × 3 = 18. Kemudian 14 + 18 = 32. Opsi b."],
+  ["96 : 8 + 7 = ...", ["17", "18", "20", "21", "19"], "e", "96 : 8 = 12. Kemudian 12 + 7 = 19. Opsi e."],
+  ["45 - 18 + 9 = ...", ["35", "36", "34", "37", "38"], "b", "Kerjakan dari kiri: 45 - 18 = 27. Kemudian 27 + 9 = 36. Opsi b."],
+  ["11 × 4 - 13 = ...", ["29", "30", "33", "31", "32"], "d", "Dahulukan perkalian: 11 × 4 = 44. Kemudian 44 - 13 = 31. Opsi d."],
+  ["72 : 9 + 16 = ...", ["23", "25", "24", "22", "26"], "c", "72 : 9 = 8. Kemudian 8 + 16 = 24. Opsi c."],
+  ["7 × 6 - 19 = ...", ["23", "21", "24", "22", "19"], "a", "Dahulukan perkalian: 7 × 6 = 42. Kemudian 42 - 19 = 23. Opsi a."],
+  ["27 + 15 - 8 = ...", ["32", "35", "36", "33", "34"], "e", "Kerjakan dari kiri: 27 + 15 = 42. Kemudian 42 - 8 = 34. Opsi e."],
+  ["144 : 12 + 5 = ...", ["18", "16", "17", "15", "19"], "c", "144 : 12 = 12. Kemudian 12 + 5 = 17. Opsi c."],
+  ["9 × 8 + 6 = ...", ["80", "78", "74", "76", "82"], "b", "Dahulukan perkalian: 9 × 8 = 72. Kemudian 72 + 6 = 78. Opsi b."],
+  ["63 - 27 : 3 = ...", ["55", "56", "54", "53", "52"], "c", "Dahulukan pembagian: 27 : 3 = 9. Kemudian 63 - 9 = 54. Opsi c."],
+  ["18 + 4 × 7 = ...", ["44", "42", "46", "48", "50"], "c", "Dahulukan perkalian: 4 × 7 = 28. Kemudian 18 + 28 = 46. Opsi c."],
+  ["150 : 5 - 11 = ...", ["20", "21", "17", "19", "18"], "d", "150 : 5 = 30. Kemudian 30 - 11 = 19. Opsi d."],
+  ["32 + 48 : 6 = ...", ["39", "40", "42", "38", "41"], "b", "48 : 6 = 8. Kemudian 32 + 8 = 40. Opsi b."],
+  ["5 × 15 - 28 = ...", ["47", "45", "48", "46", "49"], "a", "Dahulukan perkalian: 5 × 15 = 75. Kemudian 75 - 28 = 47. Opsi a."],
+  ["81 : 9 + 27 = ...", ["34", "37", "35", "38", "36"], "e", "81 : 9 = 9. Kemudian 9 + 27 = 36. Opsi e."],
+  ["66 - 14 + 5 = ...", ["58", "57", "59", "56", "55"], "b", "Kerjakan dari kiri: 66 - 14 = 52. Kemudian 52 + 5 = 57. Opsi b."],
+  ["13 × 3 + 22 = ...", ["63", "60", "62", "61", "59"], "d", "Dahulukan perkalian: 13 × 3 = 39. Kemudian 39 + 22 = 61. Opsi d."],
+  ["108 : 6 - 7 = ...", ["9", "10", "12", "13", "11"], "e", "108 : 6 = 18. Kemudian 18 - 7 = 11. Opsi e."],
+  ["24 + 9 × 5 = ...", ["69", "67", "70", "71", "68"], "a", "Dahulukan perkalian: 9 × 5 = 45. Kemudian 24 + 45 = 69. Opsi a."],
+  ["84 : 7 + 18 = ...", ["31", "29", "28", "30", "32"], "d", "84 : 7 = 12. Kemudian 12 + 18 = 30. Opsi d."]
+];
+
+const t6b_text = [
+  "A x J = J", "B x E = AK", "C x G = BA", "D x F = BD", "E x H = DK",
+  "F x J = EB", "G x H = EF", "H x H = FC", "J x J = HA", "AB x C = CE",
+  "AK x E = EK", "AJ x B = CH", "AC x D = EB", "AE x C = DD", "AF x B = BC",
+  "AH x B = CF", "BB x D = HH", "BE x F = AEK", "BK x C = EK", "HJ x A = HJ"
+];
+const t6b_ans = ["b","b","b","b","b","s","b","s","b","s","b","b","b","s","b","b","b","b","s","b"];
+
+const t6c_data = [
+  ["Farah dapat menyusun 18 map dalam 3 jam. Berapa map dapat disusunnya dalam 7 jam?", ["36 map", "42 map", "40 map", "48 map", "t.a."], "b", "Dalam 1 jam Farah menyusun 18 / 3 = 6 map. Dalam 7 jam ia menyusun 7 × 6 = 42 map. Opsi b."],
+  ["Reno membeli 5 buku masing-masing Rp. 12.400,- dan 2 pensil masing-masing Rp. 3.500,-. Berapakah jumlah seluruh belanja Reno?", ["Rp. 68.000,-", "Rp. 69.500,-", "Rp. 70.000,-", "Rp. 69.000,-", "t.a."], "d", "5 × 12.400 = 62.000. 2 × 3.500 = 7.000. Total = 69.000. Opsi d."],
+  ["Laras menabung Rp. 15.000,- setiap minggu selama 8 minggu. Setelah itu ia mengambil Rp. 20.000,-. Berapa sisa tabungannya?", ["Rp. 95.000,-", "Rp. 100.000,-", "Rp. 105.000,-", "Rp. 90.000,-", "t.a."], "b", "Tabungan awal = 8 × 15.000 = 120.000. Setelah diambil 20.000, sisanya 100.000. Opsi b."],
+  ["Dalam satu kotak terdapat 24 botol minum. Berapa botol terdapat dalam 15 kotak?", ["340 botol", "320 botol", "380 botol", "360 botol", "t.a."], "d", "24 × 15 = 360 botol. Opsi d."],
+  ["Bimo menempuh jarak 180 km dalam 3 jam. Jika kecepatannya tetap, berapa km yang ditempuh dalam 5 jam?", ["300 km", "280 km", "320 km", "290 km", "t.a."], "a", "Kecepatan Bimo = 180 / 3 = 60 km/jam. Dalam 5 jam jaraknya 60 × 5 = 300 km. Opsi a."],
+  ["Santi berumur 16 tahun. Adiknya 3 tahun lebih muda. Berapa jumlah umur mereka sekarang?", ["27 tahun", "28 tahun", "29 tahun", "30 tahun", "t.a."], "c", "Umur adik = 16 - 3 = 13 tahun. Jumlah umur mereka = 16 + 13 = 29 tahun. Opsi c."],
+  ["Pak Yusuf membeli 12 kg beras dengan harga Rp. 14.500,- per kg. Ia membayar dengan Rp. 200.000,-. Berapakah uang kembaliannya?", ["Rp. 25.000,-", "Rp. 26.000,-", "Rp. 24.000,-", "Rp. 27.000,-", "t.a."], "b", "Total harga = 12 × 14.500 = 174.000. Kembalian = 200.000 - 174.000 = 26.000. Opsi b."],
+  ["Sebuah bus berangkat pukul 07.35 dan tiba pukul 10.20. Berapa lama perjalanan bus tersebut?", ["2 jam 35 menit", "2 jam 55 menit", "2 jam 45 menit", "2 jam 25 menit", "t.a."], "c", "Dari 07.35 ke 10.20 selisih waktunya 2 jam 45 menit. Opsi c."],
+  ["Dalam sebuah latihan, Nisa menjawab 45 dari 60 soal dengan benar. Berapa persen jawaban benar Nisa?", ["70%", "75%", "80%", "65%", "t.a."], "b", "(45 / 60) × 100% = 75%. Opsi b."],
+  ["Perusahaan membayar Rp. 4.500,- per paket untuk 18 paket pertama dan Rp. 5.000,- per paket untuk sisanya. Jika Seno menyelesaikan 24 paket, berapa total upah yang diterimanya?", ["Rp. 108.000,-", "Rp. 114.000,-", "Rp. 111.000,-", "Rp. 106.000,-", "t.a."], "c", "18 paket pertama = 18 × 4.500 = 81.000. Sisa 6 paket = 6 × 5.000 = 30.000. Total = 111.000. Opsi c."]
+];
+
+const t6_letterNote = "A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, J = 9, K = 0";
+const t6_questions = [
+  ...buildMC(t6a_data, 1),
+  ...buildTF(t6b_text, t6b_ans, 21).map((q) => ({ ...q, note: t6_letterNote })),
+  ...buildMC(t6c_data, 41)
 ];
 
 
@@ -650,6 +701,30 @@ const TEST_DATA = {
     closingInstruction: "Jika perlu, perhitungan-perhitungan dapat dilakukan pada kertas buram yang tersedia.",
     note: "Kunci: A=1, B=2, C=3, D=4, E=5, F=6, G=7, H=8, J=9, K=0",
     questions: buildTF(t5_text, t5_ans)
+  },
+  6: {
+    title: "TES NUMERIK 06",
+    description: "Tes campuran hitung cepat, huruf-angka, dan soal cerita numerik.",
+    instructions: "Tes ini terdiri atas 50 soal campuran.\n\nNomor 1-20 adalah soal hitung cepat dengan lima pilihan jawaban a, b, c, d, dan e.\n\nNomor 21-40 adalah soal kode huruf-angka dengan pilihan Benar (b) atau Salah (s). Pada bagian ini berlaku ketentuan A=1, B=2, C=3, D=4, E=5, F=6, G=7, H=8, J=9, dan K=0.\n\nNomor 41-50 adalah soal cerita numerik dengan lima pilihan jawaban a, b, c, d, dan e.\n\nKerjakan setiap soal dengan teliti dan pilih jawaban yang paling tepat.",
+    examples: [
+      {
+        text: "1) 12 + 6 × 2 = ...",
+        options: ["a. 22", "b. 24", "c. 26", "d. 28", "e. 30"],
+        explanation: "Dahulukan perkalian: 6 × 2 = 12. Kemudian 12 + 12 = 24. Jadi jawaban contoh ini adalah b."
+      },
+      {
+        text: "2) B x F = AC",
+        options: ["Benar (b)", "Salah (s)"],
+        explanation: "B = 2 dan F = 6, maka 2 × 6 = 12. Angka 12 ditulis AB, bukan AC. Jadi jawaban contoh ini adalah s."
+      },
+      {
+        text: "3) Dita menabung Rp. 10.000,- setiap hari selama 6 hari. Berapa jumlah tabungannya?",
+        options: ["a. Rp. 40.000,-", "b. Rp. 50.000,-", "c. Rp. 60.000,-", "d. Rp. 70.000,-", "e. t.a."],
+        explanation: "6 × 10.000 = Rp. 60.000,-. Jadi jawaban contoh ini adalah c."
+      }
+    ],
+    closingInstruction: "Jika perlu, perhitungan-perhitungan dapat dilakukan pada kertas buram yang tersedia.",
+    questions: t6_questions
   }
 };
 
@@ -943,6 +1018,7 @@ export default function App() {
   const renderQuiz = () => {
     const test = TEST_DATA[activeTest];
     const question = test.questions[currentQuestionIndex];
+    const questionNote = question.note || test.note;
     const isLastQuestion = currentQuestionIndex === test.questions.length - 1;
     const answeredCount = Object.keys(answers).length;
 
@@ -1006,9 +1082,9 @@ export default function App() {
         </div>
 
         {/* Note Helper (if exists) */}
-        {test.note && (
+        {questionNote && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl font-mono text-left sm:text-center text-xs sm:text-sm font-bold shadow-sm overflow-x-auto">
-            {test.note}
+            {questionNote}
           </div>
         )}
 
@@ -1034,7 +1110,7 @@ export default function App() {
                   onChange={() => handleSelectOption(opt.id)}
                 />
                 <span className="flex-1 text-base sm:text-lg text-gray-700 font-medium leading-relaxed break-words">
-                  {test.note ? '' : <span className="uppercase mr-2 text-gray-400 font-bold">{opt.id}.</span>}
+                  {questionNote ? '' : <span className="uppercase mr-2 text-gray-400 font-bold">{opt.id}.</span>}
                   {opt.text}
                 </span>
               </label>
